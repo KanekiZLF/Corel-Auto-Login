@@ -7,6 +7,7 @@ import sys
 import subprocess
 from tkinter import *
 from queue import Queue
+from tkinter import messagebox
 import os
 
 programOpen = False
@@ -17,29 +18,33 @@ passwordClick = False
 buttonContinue = False
 buttonIgnore = False
 stopThread = False
-
+imgSearch = "FirstClick.png"
+imgIcon = "iconCorel.ico"
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
 # Criar uma fila para passar mensagens da thread secundária para a thread principal
 message_queue = Queue()
 
 def openProgram():
-    global programOpen, stopThread
+    global programOpen, stopThread, window
 
     if not programOpen and not stopThread:
         try:
-            subprocess.Popen(r"C:\Program Files\Corel\CorelDRAW Graphics Suite 2022\Programs64\CorelDRW.exe")
+            subprocess.Popen(r"CorelDRW.exe")
             programOpen = True
             return True
-        except subprocess.CalledProcessError:
-            programOpen = True
-            return False
+        except FileNotFoundError:
+            messagebox.showerror("CorelRobotLogin by KanekiZLF",
+                                 "O arquivo CorelDRW.exe não pôde ser localizado. Certifique-se de que o programa está na pasta executável do CorelDraw !",
+                                 icon="error",
+                                 type="ok",)
+            sys.exit()
 
 def searchStrings():
     global buttonClick, emailClick, passwordClick, buttonContinue, buttonIgnore, stopThread, text2, text3, text4, text5, text6
 
     while not stopThread:
         try:
-            img_path = os.path.join(os.path.dirname(r'D:\KanekiZLF\Documents\Logica de Programacao\Aprendendo Python\Solução corel login'), "FirstClick.png")
-            img = pyautogui.locateCenterOnScreen(img_path, confidence=0.8)
+            img = pyautogui.locateCenterOnScreen(imgSearch, confidence=0.8)
             if img:
                 if not buttonClick:
                     pyautogui.click(img.x - 200, img.y + 120)
@@ -83,8 +88,14 @@ def showGui():
     global window, text2, text3, text4, text5, text6
     window = Tk()
     window.resizable(False, False)
-    iconPath = os.path.join(os.path.dirname(r'D:\KanekiZLF\Documents\Logica de Programacao\Aprendendo Python\Solução corel login/'), "iconCorel.ico")
-    window.iconbitmap(iconPath)
+
+    try:
+        window.iconbitmap(imgIcon)
+    except FileNotFoundError:
+        messagebox.showerror("CorelRobot by KanekiZLF", f"Ícone não encontrado: {imgIcon}", type="ok")
+    except TclError:
+        messagebox.showerror("CorelRobot by KanekiZLF", "Erro ao definir o ícone !", type="ok")
+
     window.title("CorelRobot")
     text1 = Label(window, text="Iniciando Corel Login...")
     text1.grid(column=0, row=0)
